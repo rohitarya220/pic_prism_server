@@ -1,16 +1,26 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const { readdirSync } = require('fs');
+const { readdirSync } = require("fs");
 const { connectDb } = require("./connection");
+const cors = require("cors");
 
 const app = express();
-
-readdirSync('./routes').map(route => app.use('/api', require(`./routes/${route}`)))
-
 dotenv.config();
-connectDb()
-const PORT = process.env.PORT
 
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Routes
+readdirSync("./routes").map((route) =>
+  app.use("/api", require(`./routes/${route}`))
+);
+
+// Database connection
+connectDb();
+
+// Server setup
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`server is listening on ${PORT}`);
+  console.log(`Server is listening on port ${PORT}`);
 });
