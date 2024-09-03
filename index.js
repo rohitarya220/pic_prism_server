@@ -1,13 +1,16 @@
-const express = require('express')
-const dotenv = require('dotenv')
-dotenv.config()
+const express = require("express");
+const dotenv = require("dotenv");
+const { readdirSync } = require('fs');
+const { connectDb } = require("./connection");
 
-const app = express()
+const app = express();
 
+readdirSync('./routes').map(route => app.use('/api', require(`./routes/${route}`)))
 
-const PORT = process.env.PORT || 5000
+dotenv.config();
+connectDb()
+const PORT = process.env.PORT
 
 app.listen(PORT, () => {
-    console.log(`server is listening on ${PORT}`)
-})
-
+    console.log(`server is listening on ${PORT}`);
+});
