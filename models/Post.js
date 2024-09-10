@@ -6,8 +6,8 @@ const postSchema = new mongoose.Schema({
     author: {type: String, required: true},
     price: {type: Number, required: true},
     image: {type: String, required: true},
-    public_id: {type: String, required: true},
-    author_id: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    publicId: {type: String, required: true},
+    authorId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     purchasedBy: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
 
 },
