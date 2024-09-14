@@ -2,7 +2,6 @@ const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { generateAccessToken } = require("../helpers/accessToken");
-const { generateRefreshToken } = require("../helpers/refreshToken");
 
 const signup = async (req, res) => {
   const { username, email, password, accountType } = req.body;
@@ -55,15 +54,12 @@ const login = async (req, res) => {
       author: user.username
     }
 
-    const accessToken = generateAccessToken(data)
-    const refreshToken = generateRefreshToken(data)
-    console.log(accessToken)
+    const accessToken = 'Bearer ' + generateAccessToken(data)
 
     return res.status(200).json({
       sucess: true,
       message: "Logged in successfully",
       accessToken,
-      refreshToken,
       role: user.accountType,
       author: user.username
     })
