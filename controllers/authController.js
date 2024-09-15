@@ -1,5 +1,4 @@
 const User = require("../models/user");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { generateAccessToken } = require("../helpers/accessToken");
 
@@ -68,4 +67,28 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { login, signup };
+const updateUser = async (req, res) => {
+  const { username, email, password, accountType } = req.body;
+  let authorId = req.user._id
+  req.body.authorId = authorId
+
+  try {
+    if (accountType) return res.status(400).json({ success: false, message: 'Accout type can not be Updated' })
+    if (!authorId) return res.status(403).json({ success: false, message: 'Invalid User' })
+
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        req.body.password = await bcrypt.hash(password, salt);
+      }
+
+    const updatedUser = await User.findByIdAndUpdate(authorId, req.body, { new: true })
+    if (!updatedUser) return res.status(404).json({ success: false, message: 'User Not Found' })
+
+    return res.status(200).json({ success: true, message: 'User Updated Successfully', updatedUser })
+
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+module.exports = { login, signup, updateUser };
