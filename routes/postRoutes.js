@@ -1,4 +1,4 @@
-const { createPost, getAllPosts, getMyPosts, updatePost } = require('../controllers/postController')
+const { createPost, getAllPosts, getMyPosts, updatePost, deletePost, searchPost, addToFavorites, removeFromFavorites, getFavourites } = require('../controllers/postController')
 const verifyToken = require('../middlewares/verifyToken')
 const router = require('express').Router()
 const fs = require('fs');
@@ -31,5 +31,10 @@ router.post('/post/create', uploadFile.any(), verifyToken, createPost)
 router.get('/post/getAll', getAllPosts)
 router.get('/post/myPost', verifyToken, getMyPosts)
 router.put('/post/update/:id', uploadFile.any(), verifyToken, updatePost)
+router.delete('/post/delete/:id',  verifyToken, deletePost)
+router.put('/post/favourite/:postId',  verifyToken, addToFavorites)
+router.put('/post/remove/favourite/:postId',  verifyToken, removeFromFavorites)
+router.get('/post/Favourite/list', verifyToken, getFavourites)
+router.get('/post/search', searchPost)
 
 module.exports = router
