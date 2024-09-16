@@ -11,7 +11,7 @@ const signup = async (req, res) => {
     if (user) {
       return res
         .status(400)
-        .json({ sucess: false, message: "Username already in use!" });
+        .json({ success: false, message: "Username already in use!" });
     }
 
     const securePassword = await bcrypt.hash(password, 10);
@@ -26,9 +26,9 @@ const signup = async (req, res) => {
 
     return res
       .status(201)
-      .json({ sucess: true, message: "User registered successfully" });
+      .json({ success: true, message: "User registered successfully" });
   } catch (error) {
-    return res.status(500).json({ sucess: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -38,14 +38,14 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ sucess: false, message: "User Not Found" });
+      return res.status(400).json({ success: false, message: "User Not Found" });
     }
 
     const comparedPassword = await bcrypt.compare(password, user.password);
     if (!comparedPassword)
       return res
         .status(400)
-        .json({ sucess: false, message: "Invalid credentials" });
+        .json({ success: false, message: "Invalid credentials" });
 
     const data = {
       id: user._id,
@@ -56,14 +56,14 @@ const login = async (req, res) => {
     const accessToken = 'Bearer ' + generateAccessToken(data)
 
     return res.status(200).json({
-      sucess: true,
+      success: true,
       message: "Logged in successfully",
       accessToken,
       role: user.accountType,
       author: user.username
     })
   } catch (error) {
-    return res.status(500).json({ sucess: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
