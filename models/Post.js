@@ -5,7 +5,7 @@ const postSchema = new mongoose.Schema({
     title: {type: String, required: true},
     description: {type: String, required: true},
     price: {type: Number, required: true},
-    image: {type: String, default: '', required: true},
+    image: {type: String, default: '',},
     authorId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     // purchasedBy: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
 },
