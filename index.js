@@ -6,11 +6,24 @@ const cors = require("cors");
 _ = require("underscore");
 const app = express();
 dotenv.config();
+const whitelist = ['http://localhost:5173', 'https://pic-prism-server-gjww.onrender.com'];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions))
 
 // Middleware
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+
 // Routes
 readdirSync("./routes").map((route) =>
   app.use("/api", require(`./routes/${route}`))
