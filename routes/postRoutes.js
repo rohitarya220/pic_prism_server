@@ -1,40 +1,45 @@
-const { createPost, getAllPosts, getMyPosts, updatePost, deletePost, searchPost, addToFavorites, removeFromFavorites, getFavourites } = require('../controllers/postController')
-const verifyToken = require('../middlewares/verifyToken')
-const router = require('express').Router()
-const fs = require('fs');
+const express = require('express');
+const router = express.Router();
 const multer = require('multer');
-const cloudinary = require('cloudinary');
-const request_params = multer();
+const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { createPost, getAllPosts, getMyPosts, updatePost, deletePost, searchPost, addToFavorites, removeFromFavorites, getFavourites } = require('../controllers/postController');
+const verifyToken = require('../middlewares/verifyToken');
 
-cloudinary.config({ 
-    cloud_name: 'dqt7yomup', 
-    api_key: '363783627487427', 
-    api_secret: '1A11zv3k3B0XOSk6wOLIhqx_-VY' // Click 'View API Keys' above to copy your API secret
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: 'dqt7yomup',
+  api_key: '363783627487427',
+  api_secret: '1A11zv3k3B0XOSk6wOLIhqx_-VY'
 });
 
+// Multer setup for file storage
 const Storage = multer.diskStorage({
-    destination: (req, file, callback) => {
-        if (!fs.existsSync("./uploads/post")) {
-            fs.mkdirSync("./uploads/post");
-        }
-
-        callback(null, "./uploads/post");
-    },
-    filename: (req, file, callback) => {
-        callback(null, Date.now() + "_" + file.originalname.replace(/\s/g, '_'));
+  destination: (req, file, callback) => {
+    const uploadDir = "./uploads/post";
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
     }
+    callback(null, uploadDir);
+  },
+  filename: (req, file, callback) => {
+    callback(null, Date.now() + "_" + file.originalname.replace(/\s/g, '_'));
+  }
 });
 
 const uploadFile = multer({ storage: Storage });
 
-router.post('/post/create', uploadFile.any(), verifyToken, createPost)
-router.get('/post/getAll', getAllPosts)
-router.get('/post/myPost', verifyToken, getMyPosts)
-router.put('/post/update/:id', uploadFile.any(), verifyToken, updatePost)
-router.delete('/post/delete/:id',  verifyToken, deletePost)
-router.put('/post/favourite/:postId',  verifyToken, addToFavorites)
-router.put('/post/remove/favourite/:postId',  verifyToken, removeFromFavorites)
-router.get('/post/Favourite/list', verifyToken, getFavourites)
-router.get('/post/search', searchPost)
+// Route for creating a post with image upload
+router.post('/post/create', uploadFile.any(), verifyToken, createPost);
 
-module.exports = router
+// Other routes
+router.get('/post/getAll', getAllPosts);
+router.get('/post/myPost', verifyToken, getMyPosts);
+router.put('/post/update/:id', uploadFile.any(), verifyToken, updatePost);
+router.delete('/post/delete/:id', verifyToken, deletePost);
+router.put('/post/favourite/:postId', verifyToken, addToFavorites);
+router.put('/post/remove/favourite/:postId', verifyToken, removeFromFavorites);
+router.get('/post/Favourite/list', verifyToken, getFavourites);
+router.get('/post/search', searchPost);
+
+module.exports = router;

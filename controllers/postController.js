@@ -4,11 +4,18 @@ const fs = require("fs");
 const cloudinary = require("cloudinary");
 const mongoose = require("mongoose");
 
+cloudinary.config({
+  cloud_name: 'dqt7yomup',
+  api_key: '363783627487427',
+  api_secret: '1A11zv3k3B0XOSk6wOLIhqx_-VY'
+});
+
 const createPost = async (req, res) => {
   let authorAccountType = req.user.accountType;
   req.body.accountType = authorAccountType;
 
   try {
+    // Check if the user is a seller
     if (authorAccountType === "buyer") {
       return res.status(403).json({
         success: false,
@@ -16,21 +23,37 @@ const createPost = async (req, res) => {
       });
     }
 
+    // Check for uploaded files
     if (req.files && req.files.length > 0) {
       for (let i = 0; i < req.files.length; i++) {
         const element = req.files[i];
+        
+        // Only handle image files
         if (element.fieldname === "image") {
           const photoPath = element.path;
-          const uploadImage = await cloudinary.v2.uploader.upload(photoPath);
+
+          // Upload the image to Cloudinary
+          const uploadImage = await cloudinary.uploader.upload(photoPath, {
+            folder: 'post_images',  // Optional: uploads to a specific folder in Cloudinary
+          });
+
+          // Add the image URL to the request body
           req.body.image = uploadImage.secure_url;
+
+          // Remove the local file after upload
           fs.unlinkSync(photoPath);
         }
       }
     }
+
+    // Assign the author ID to the post
     let authorId = req.user._id;
     req.body.authorId = authorId;
+
+    // Create the post
     const post = await Post.create(req.body);
 
+    // Send response with the created post
     return res.status(200).json({
       success: true,
       data: post,
