@@ -27,7 +27,7 @@ const createPost = async (req, res) => {
     if (req.files && req.files.length > 0) {
       for (let i = 0; i < req.files.length; i++) {
         const element = req.files[i];
-        
+
         // Only handle image files
         if (element.fieldname === "image") {
           const photoPath = element.path;
@@ -95,7 +95,12 @@ const getMyPosts = async (req, res) => {
       });
     }
 
-    const posts = await Post.find({ authorId });
+    const filter = { authorId };
+    if (req.body.postId) {
+      filter._id = req.body.postId;
+    }
+
+    const posts = await Post.find(filter);
     if (posts.length === 0) {
       return res
         .status(404)
@@ -168,26 +173,42 @@ const deletePost = async (req, res) => {
 };
 
 const searchPost = async (req, res) => {
-  const { search } = req.query;
-  console.log(search);
+  const { search } = req.body;
+
+  if (!search || typeof search !== 'string') {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid search input",
+    });
+  }
 
   try {
-    const searchResult = await Post.find({
-      description: { $regex: search, $options: "i" },
-    });
-    console.log(searchResult);
-    if (searchResult.length == 0)
-      return res.status(404).json({ success: false, message: "No Post found" });
+    const searchResult = await Post.aggregate([
+      {
+        $match: {
+          $or: [
+            { title: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+          ],
+        },
+      },
+    ]);
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        data: searchResult,
-        message: "Post successfully Found",
-      });
+    if (searchResult.length === 0) {
+      return res.status(404).json({ success: false, message: "No Post found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: searchResult,
+      message: "Post successfully found",
+    });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    console.error("Error searching posts:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while searching for posts",
+    });
   }
 };
 
