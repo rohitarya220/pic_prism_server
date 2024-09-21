@@ -47,7 +47,7 @@ router.get("/post/getAll", getAllPosts);
 router.post("/post/myPost", verifyToken, getMyPosts);
 router.delete("/post/delete/:id", verifyToken, deletePost);
 router.get("/post/favourite/:postId", verifyToken, addToFavorites);
-router.get("/post/remove/favourite/:postId", verifyToken, removeFromFavorites);
+router.delete("/post/remove/favourite/:postId", verifyToken, removeFromFavorites);
 router.post("/post/favourite/list", verifyToken, getFavourites);
 router.post("/post/search", searchPost);
 
